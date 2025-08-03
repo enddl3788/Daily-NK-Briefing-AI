@@ -71,12 +71,19 @@
 
 ```
 북한브리핑AI/
+│
+├── app/
+│   ├── main.py           # FastAPI 실행
+│   ├── summarizer.py     # 텍스트 요약 로직
+│   ├── fetcher.py        # OpenAPI 데이터 수집
+│   ├── blog_uploader.py  # 블로그 API 연동
+│   └── config.py         # API 키 등 설정
+│
 ├── data/
-│   └── collectors/   # OpenAPI 호출 스크립트
-├── summarizer/       # 요약 모델 로직
-├── publisher/        # 블로그 포스팅 연동
-├── scheduler/        # 주간 실행 스케줄러
+│   └── raw_json/         # 수집된 원본 JSON
+│
+├── requirements.txt
 ├── README.md
-└── requirements.txt
+└── .env                  # API 키 저장
 ```
 
