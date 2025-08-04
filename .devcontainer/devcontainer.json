@@ -1,15 +1,24 @@
 {
   "name": "북한 브리핑 AI",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
-  "postCreateCommand": "pip install -r requirements.txt",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
   "customizations": {
     "vscode": {
-      "settings": {},
       "extensions": [
         "ms-python.python",
         "ms-toolsai.jupyter"
       ]
     }
   },
-  "features": {}
+  "forwardPorts": [8000],
+  "runArgs": ["--init"],
+  "containerUser": "vscode",
+  "portsAttributes": {
+    "8000": {
+      "label": "Uvicorn API 서버",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "overrideCommand": false,
+  "command": "uvicorn main:app --reload --host 0.0.0.0 --port 8000"
 }
