@@ -1,7 +1,5 @@
 # 북한 브리핑 AI – 주간 북한 동향 자동 요약 블로그 서비스
 
-<!-- https://www.unikorea.go.kr/unikorea/notify/notice/?boardId=bbs_0000000000000001&mode=view&cntId=55780 -->
-
 ## 개요
 
 **북한 브리핑 AI**는 통일부 공공데이터(OpenAPI)를 활용하여 북한의 최신 정치, 경제, 군사, 사회 동향을 자동으로 분석하고, **매주 블로그에 요약 뉴스를 게시하는 자동화 서비스**입니다.  
@@ -75,7 +73,6 @@
 북한브리핑AI/
 │
 ├── app/
-│   ├── main.py           # FastAPI 실행
 │   ├── summarizer.py     # 텍스트 요약 로직
 │   ├── fetcher.py        # OpenAPI 데이터 수집
 │   ├── blog_uploader.py  # 블로그 API 연동
@@ -84,6 +81,7 @@
 ├── data/
 │   └── raw_json/         # 수집된 원본 JSON
 │
+├── main.py
 ├── requirements.txt
 ├── README.md
 └── .env                  # API 키 저장
