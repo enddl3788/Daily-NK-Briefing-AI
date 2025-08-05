@@ -5,7 +5,7 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from app.fetcher import fetch_weekly_north_korea_trends
+from app.fetcher import fetch_all_north_korea_trends
 from app.summarizer import summarize_text
 from app.blog_uploader import upload_to_tistory
 
@@ -43,7 +43,7 @@ async def get_weekly_briefing():
     try:
         logger.info("📰 북한 동향 수집 시작")
         # 비동기 함수가 아니므로 run_in_threadpool을 사용
-        raw_data = await run_in_threadpool(fetch_weekly_north_korea_trends)
+        raw_data = await run_in_threadpool(fetch_all_north_korea_trends)
 
         if not raw_data:
             logger.warning("⚠️ 북한 동향 데이터 없음")
@@ -73,7 +73,7 @@ async def publish_briefing():
     try:
         # 1. 북한 동향 수집
         logger.info("📰 북한 동향 수집 시작")
-        raw_data = await run_in_threadpool(fetch_weekly_north_korea_trends)
+        raw_data = await run_in_threadpool(fetch_all_north_korea_trends)
 
         # 2. 요약 및 제목 생성
         logger.info("✍️ 요약 및 제목 생성 시작")

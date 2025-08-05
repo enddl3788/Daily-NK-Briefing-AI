@@ -29,11 +29,11 @@ BLOG_PLATFORM = os.getenv("BLOG_PLATFORM", "tistory")
 logger.info(f"📝 BLOG_PLATFORM 설정: {BLOG_PLATFORM}")
 
 # 요약 문단 수 설정
-SUMMARY_PARAGRAPH_LIMIT = 3
+SUMMARY_PARAGRAPH_LIMIT = 6
 logger.info(f"📄 SUMMARY_PARAGRAPH_LIMIT: {SUMMARY_PARAGRAPH_LIMIT} 문단")
 
 # 기본 날짜 계산 함수
-def get_default_date_range(days=7):
+def get_default_date_range(days=3):
     """지난 N일간 날짜 범위를 반환"""
     today = datetime.today()
     start_date = today - timedelta(days=days)

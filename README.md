@@ -12,18 +12,15 @@
 ### 1. **통일부 OpenAPI 연동**
 - 통일부에서 제공하는 다음 공공데이터 API들을 자동 수집:
   - 북한 동향 조회 서비스
-  - 북한 개황 조회 서비스
   - 김정은 공개 활동 조회 서비스
-  - 북한정보포털 통합검색
-  - 통일부 보도자료 등
+  - 통일부 보도자료 조회 서비스
 
-### 2. **주간 뉴스 요약**
+### 2. **일간 뉴스 요약**
 - GPT 기반 LLM 모델로 주간 북한 관련 정보 자동 요약
 - 주제별 (정치/경제/군사/사회)로 분류하여 5분 이내 읽을 수 있는 뉴스로 가공
 
 ### 3. **블로그 자동 업로드**
-- 워드프레스, 티스토리 또는 브런치 API 연동
-- 매주 월요일 오전 자동 발행 스케줄러(Cron or GitHub Actions 기반)
+- 티스토리 API 연동
 
 ---
 
@@ -55,35 +52,13 @@
 
 ---
 
-## 기술 스택 (예정)
+## 기술 스택
 
 | 구성 요소 | 기술 |
 |-----------|------|
 | 백엔드 | Python, FastAPI |
-| 데이터 수집 | Python, requests, OpenAPI, MongoDB |
-| 요약 모델 | OpenAI GPT-4 or Hugging Face Transformers |
-| 블로그 연동 | WordPress REST API, Tistory API, Scheduler (GitHub Actions 또는 cron) |
-| 배포 | Docker, AWS Lambda 또는 EC2, GitHub CI/CD |
-
----
-
-## 디렉토리 구조 (예시)
-
-```
-북한브리핑AI/
-│
-├── app/
-│   ├── summarizer.py     # 텍스트 요약 로직
-│   ├── fetcher.py        # OpenAPI 데이터 수집
-│   ├── blog_uploader.py  # 블로그 API 연동
-│   └── config.py         # API 키 등 설정
-│
-├── data/
-│   └── raw_json/         # 수집된 원본 JSON
-│
-├── main.py
-├── requirements.txt
-├── README.md
-└── .env                  # API 키 저장
-```
+| 데이터 수집 | Python, requests, OpenAPI |
+| 요약 모델 | OpenAI GPT-4 |
+| 블로그 연동 | Tistory API |
+| 배포 | 개인 서버 |
 

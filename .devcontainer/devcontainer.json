@@ -1,13 +1,27 @@
 {
   "name": "북한 브리핑 AI",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
-  "postCreateCommand": "bash .devcontainer/setup.sh && pip install -r requirements.txt",
+  
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-python.python",
         "ms-toolsai.jupyter"
       ]
+    }
+  },
+  
+  // ✅ Codespaces가 완전히 로드된 후 실행할 명령어
+  "postAttachCommand": "pip install -r requirements.txt && uvicorn main:app --reload",
+  
+  // ✅ FastAPI 앱이 실행되는 포트를 자동으로 포워딩
+  "forwardPorts": [8000],
+
+  // ✅ 포트 8000에 대한 설명 및 동작 설정
+  "portsAttributes": {
+    "8000": {
+      "label": "FastAPI App",
+      "onAutoForward": "notify"
     }
   }
 }
