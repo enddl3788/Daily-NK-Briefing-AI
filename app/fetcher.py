@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 UNION_API_KEY = os.getenv("UNION_API_KEY")  # 통일부 OpenAPI 인증키
-BASE_URL = "https://apis.data.go.kr/1250000/trend"  # 실제 엔드포인트에 맞게 조정
+BASE_URL = "http://apis.data.go.kr/1250000/trend/getTrend"  # 실제 엔드포인트에 맞게 조정
 
 def fetch_weekly_north_korea_trends(start_date=None, end_date=None, max_items=30):
     """
@@ -34,25 +34,28 @@ def fetch_weekly_north_korea_trends(start_date=None, end_date=None, max_items=30
         start_date = last_week.strftime("%Y%m%d")
         end_date = today.strftime("%Y%m%d")
 
+
     logger.info(f"📡 북한 동향 수집 시작: {start_date} ~ {end_date} (최대 {max_items}건)")
 
     params = {
-        "serviceKey": UNION_API_KEY,
-        "pageNo": 1,
-        "numOfRows": max_items,
-        "startCreateDt": start_date,
-        "endCreateDt": end_date,
-        "dataType": "JSON",
+    "serviceKey": UNION_API_KEY,
+    "pageNo": 1,
+    "numOfRows": max_items,
+    "cl": "ARGUMENT_DAIL",            # ✅ 동향 분류 추가
+    "bgng_ymd": start_date,          # ✅ 변수명 수정
+    "end_ymd": end_date,             # ✅ 변수명 수정
+    "dataType": "JSON"
     }
 
     try:
         logger.info("🔗 API 요청 중...")
-        response = requests.get(BASE_URL, params=params)
+        response = requests.get(BASE_URL, params=params, verify=False)
+        logger.info(f"🔗 요청 URL: {response.url}")
         response.raise_for_status()
         logger.info("✅ API 응답 수신 완료")
 
         data = response.json()
-        items = data.get("response", {}).get("body", {}).get("items", {}).get("item", [])
+        items = data.get("items", [])
 
         if not items:
             logger.warning("⚠️ 수신된 동향 데이터가 없습니다.")
@@ -62,8 +65,8 @@ def fetch_weekly_north_korea_trends(start_date=None, end_date=None, max_items=30
 
         combined_text = ""
         for item in items:
-            title = item.get("title", "")
-            content = item.get("content", "")
+            title = item.get("sj", "")
+            content = item.get("cn", "")
             combined_text += f"[{title}]\n{content}\n\n"
 
         logger.info("📝 텍스트 병합 완료")

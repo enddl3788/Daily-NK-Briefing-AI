@@ -1,11 +1,13 @@
-# main.py
-
 import logging
-from fastapi import FastAPI, HTTPException
+from datetime import datetime
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+
 from app.fetcher import fetch_weekly_north_korea_trends
 from app.summarizer import summarize_text
-from app.blog_uploader import upload_to_tistory  # 블로그 자동 게시 기능
-import asyncio
+from app.blog_uploader import upload_to_tistory
 
 # ✅ 로깅 설정
 logging.basicConfig(
@@ -14,61 +16,80 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="북한 브리핑 AI", description="주간 북한 동향 요약 챗봇(자동 뉴스 작성)", version="1.0")
+app = FastAPI(
+    title="북한 브리핑 AI",
+    description="주간 북한 동향 요약 챗봇(자동 뉴스 작성)",
+    version="1.0"
+)
 
-@app.get("/")
-def root():
-    logger.info("루트 엔드포인트 '/' 접근")
-    return {"message": "북한 브리핑 AI 서비스에 오신 것을 환영합니다."}
+# ✅ Jinja2 템플릿 설정
+templates = Jinja2Templates(directory="templates")
+
+@app.get("/", response_class=HTMLResponse)
+def root(request: Request):
+    """
+    메인 페이지 UI를 제공합니다.
+    """
+    logger.info("루트 엔드포인트 '/' 접근 - UI 페이지 반환")
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/briefing/weekly")
 async def get_weekly_briefing():
+    """
+    주간 북한 동향을 수집하고 요약하여 반환합니다.
+    """
     logger.info("✅ /briefing/weekly 요청 수신")
 
     try:
-        # 1. 최신 북한 동향 수집
         logger.info("📰 북한 동향 수집 시작")
-        raw_data = fetch_weekly_north_korea_trends()
+        # 비동기 함수가 아니므로 run_in_threadpool을 사용
+        raw_data = await run_in_threadpool(fetch_weekly_north_korea_trends)
 
         if not raw_data:
             logger.warning("⚠️ 북한 동향 데이터 없음")
             raise HTTPException(status_code=404, detail="북한 동향 데이터를 불러오지 못했습니다.")
 
-        # 2. 데이터 요약 처리
-        logger.info("✍️  요약 처리 시작")
-        summary = summarize_text(raw_data)
+        logger.info("✍️ 요약 처리 시작")
+        title, summary_html = await run_in_threadpool(summarize_text, raw_data)
 
         logger.info("📦 요약 완료 및 응답 준비 완료")
         return {
             "status": "success",
-            "summary": summary
+            "title": title,
+            "summary": summary_html
         }
+
     except Exception as e:
         logger.error(f"❌ 요약 실패: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/briefing/publish")
+@app.get("/briefing/publish")
 async def publish_briefing():
     """
-    요약한 내용을 블로그(예: Tistory)로 자동 발행
+    주간 북한 동향을 요약하고 블로그에 게시합니다.
     """
     logger.info("✅ /briefing/publish 요청 수신")
 
     try:
+        # 1. 북한 동향 수집
         logger.info("📰 북한 동향 수집 시작")
-        raw_data = fetch_weekly_north_korea_trends()
+        raw_data = await run_in_threadpool(fetch_weekly_north_korea_trends)
 
-        logger.info("✍️ 요약 처리 시작")
-        summary = summarize_text(raw_data)
+        # 2. 요약 및 제목 생성
+        logger.info("✍️ 요약 및 제목 생성 시작")
+        title, summary_html = await run_in_threadpool(summarize_text, raw_data)
 
-        logger.info("🚀 블로그 업로드 시도")
-        post_url = upload_to_tistory(title="주간 북한 동향 요약", content=summary)
+        # 3. 블로그 업로드
+        logger.info(f"🚀 블로그 업로드 시도 - 제목: {title}")
+        post_url = await run_in_threadpool(upload_to_tistory, title, summary_html)
 
         logger.info(f"✅ 게시 성공: {post_url}")
         return {
             "status": "published",
+            "title": title,
             "url": post_url
         }
+
     except Exception as e:
         logger.error(f"❌ 게시 실패: {str(e)}")
         raise HTTPException(status_code=500, detail=f"게시 실패: {str(e)}")
