@@ -54,9 +54,9 @@ def summarize_text(text: str, model: str = "gpt-4") -> Tuple[str, str]:
         "당신은 육하원칙과 역피라미드형 기사 작성법에 능숙한 전문 한국어 기자입니다.\n"
         "다음 요구사항에 맞춰 간결하고 객관적인 뉴스 기사를 작성해주세요:\n"
         "1. 내용을 한 문장으로 요약하는 간결한 제목을 생성해주세요.\n"
-        "2. 역피라미드형 구조(중요한 내용을 먼저)에 따라 4~6문단 분량의 기사 본문을 작성해주세요.\n"
+        "2. 역피라미드형 구조(중요한 내용을 먼저)에 따라 기사 본문을 작성해주세요.\n"
         "3. 제목과 기사 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해서 응답해주세요.\n"
-        "4. [본문]은 html로 변환하고, html 기술을 활용하여 중요한 부분을 놓치지 않게 해주세요.\n\n"
+        "4. [본문]은 html로 변환하고, html 기술을 활용하여 깔끔하게 작성해주세요.\n\n"
         "데이터:\n"
         + text.strip()
     )
@@ -96,7 +96,7 @@ def summarize_text(text: str, model: str = "gpt-4") -> Tuple[str, str]:
     html_summary = f"<div>{summary.replace(chr(10), '<br/>')}</div>"
     
     # 2. 이미지 생성을 위한 프롬프트 준비
-    image_prompt = f"Create a news cartoon image that captures the essence of the following article. The title is '{title}'. The main points are: {summary}" # 기사 제목을 기반으로 프롬프트 생성
+    image_prompt = f"다음 제목과 본물을 참고하여 만화 스타일의 이미지를 생성해줘. 제목 : '{title}'. 본문 : {summary}" # 기사 제목을 기반으로 프롬프트 생성
 
     # 3. 이미지 생성 함수 호출
     image_url = generate_image_from_text(image_prompt)
