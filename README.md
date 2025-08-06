@@ -60,5 +60,5 @@
 | 데이터 수집 | Python, requests, OpenAPI |
 | 요약 모델 | OpenAI GPT-4 |
 | 블로그 연동 | Tistory API |
-| 배포 | 개인 서버 |
+| 배포 | 구름 IDE (추후 개인 서버로 이전 예정) |
 

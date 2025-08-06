@@ -4,6 +4,8 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 
 from app.fetcher import fetch_all_north_korea_trends
 from app.summarizer import summarize_text
@@ -24,6 +26,53 @@ app = FastAPI(
 
 # ✅ Jinja2 템플릿 설정
 templates = Jinja2Templates(directory="templates")
+
+# 스케줄러 인스턴스 생성
+scheduler = AsyncIOScheduler()
+
+# 스케줄링할 함수 정의
+async def schedule_publish():
+    """
+    오후 5시에 실행될 블로그 게시 작업
+    """
+    logger.info("⏱️ 스케줄된 자동 게시 작업 시작...")
+    try:
+        # 1. 북한 동향 수집
+        logger.info("📰 북한 동향 수집 시작")
+        raw_data = await run_in_threadpool(fetch_all_north_korea_trends)
+
+        # 2. 요약 및 제목 생성
+        logger.info("✍️ 요약 및 제목 생성 시작")
+        title, summary_html = await run_in_threadpool(summarize_text, raw_data)
+
+        # 3. 블로그 업로드
+        logger.info(f"🚀 블로그 업로드 시도 - 제목: {title}")
+        post_url = await run_in_threadpool(upload_to_tistory, title, summary_html)
+
+        logger.info(f"✅ 게시 성공: {post_url}")
+        return {
+            "status": "published",
+            "title": title,
+            "url": post_url
+        }
+
+    except Exception as e:
+        logger.error(f"❌ 게시 실패: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"게시 실패: {str(e)}")
+
+# 애플리케이션 시작 시 스케줄러 시작
+@app.on_event("startup")
+async def startup_event():
+    logger.info("🚀 애플리케이션 시작 - 스케줄러 등록")
+    # 매일 오후 5시 0분에 schedule_publish 함수 실행
+    scheduler.add_job(schedule_publish, 'cron', hour=17, minute=00)
+    scheduler.start()
+
+# 애플리케이션 종료 시 스케줄러 종료
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("👋 애플리케이션 종료 - 스케줄러 종료")
+    scheduler.shutdown()
 
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):

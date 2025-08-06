@@ -36,6 +36,16 @@
             font-size: 1.1em;
             margin-bottom: 30px;
         }
+        /* 🌟 자동 게시 시간 정보 스타일 추가 */
+        .schedule-info {
+            font-size: 1.2em;
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .schedule-info span {
+            color: #3498db;
+        }
         .button-group {
             display: flex;
             justify-content: center;
@@ -104,9 +114,14 @@
     <div class="container">
         <h1>북한 브리핑 AI</h1>
         <p>주간 북한 동향을 자동으로 요약하고, 블로그에 게시합니다.</p>
+
+        <div class="schedule-info">
+            다음 자동 게시 시간: <span id="next-publish-time">계산 중...</span>
+        </div>
+        
         <div class="button-group">
-            <button class="button briefing-button" onclick="getBriefing()">브리핑 가져오기</button>
-            <button class="button publish-button" onclick="publishBriefing()">블로그에 게시하기</button>
+            <button class="button briefing-button" onclick="getBriefing()">브리핑 미리보기</button>
+            <button class="button publish-button" onclick="publishBriefing()">수동으로 블로그 게시</button>
         </div>
         
         <div id="loading">처리 중... 잠시만 기다려주세요.</div>
@@ -118,6 +133,29 @@
     </div>
 
     <script>
+        // 🌟 다음 게시 시간 계산 및 표시 함수
+        function updateNextPublishTime() {
+            const now = new Date();
+            const publishHour = 17; // 오후 5시
+            
+            let nextPublish = new Date();
+            nextPublish.setHours(publishHour, 0, 0, 0);
+
+            // 현재 시간이 오후 5시를 지났다면, 다음 날 오후 5시로 설정
+            if (now.getHours() >= publishHour) {
+                nextPublish.setDate(nextPublish.getDate() + 1);
+            }
+
+            const days = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayName = days[nextPublish.getDay()];
+            const formattedTime = `${nextPublish.getMonth() + 1}월 ${nextPublish.getDate()}일 (${dayName}) 오후 5시`;
+
+            document.getElementById('next-publish-time').innerText = formattedTime;
+        }
+
+        // 페이지 로드 시 함수 실행
+        window.onload = updateNextPublishTime;
+
         async function callApi(endpoint, successMessage) {
             const loadingDiv = document.getElementById('loading');
             const resultDiv = document.getElementById('result');

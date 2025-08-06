@@ -9,3 +9,4 @@ certifi
 urllib3
 jinja2
 aiohttp
+apscheduler[asyncio]
