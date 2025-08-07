@@ -1,17 +1,14 @@
 import logging
 import requests
 import os
-from dotenv import load_dotenv
 
 # ✅ 로깅 설정
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-load_dotenv()
-
-TISTORY_COOKIE = os.getenv("TISTORY_COOKIE")  # 수동으로 로그인 후 복사한 쿠키
-TISTORY_BLOG = os.getenv("TISTORY_BLOG_NAME")  # 예: yourblog.tistory.com
-TISTORY_CATEGORY_ID = os.getenv("TISTORY_CATEGORY_ID", "1193166")  # 기본값 0
+TISTORY_COOKIE = os.environ.get("TISTORY_COOKIE")  # 예: _T_ANO=*****; TSSESSION=*****;
+TISTORY_BLOG = os.environ.get("TISTORY_BLOG_NAME")  # 예: yourblog.tistory.com
+TISTORY_CATEGORY_ID = os.environ.get("TISTORY_CATEGORY_ID")  # 기본값 0
 
 def upload_to_tistory(title: str, content: str, category_id: int = 1193166, visibility: int = 20) -> dict:
     """

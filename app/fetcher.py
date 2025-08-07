@@ -3,7 +3,6 @@
 import requests
 import os
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
 import logging
 from typing import Dict, Any, List, Optional, Callable
 
@@ -11,19 +10,17 @@ from typing import Dict, Any, List, Optional, Callable
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-load_dotenv()
-
 # ✅ API 키를 각 서비스에 맞게 별도로 설정
 # 환경 변수에 각 API 키를 설정해주세요. (예: UNION_TREND_API_KEY, UNION_OTHBC_API_KEY 등)
 API_ENDPOINTS = {
     "북한 동향": {
-        "key": os.getenv("UNION_API_KEY"),
+        "key": os.environ.get("UNION_API_KEY"),
         "url": "http://apis.data.go.kr/1250000/trend/getTrend",
         "parser": lambda item: {"title": item.get("sj", ""), "content": item.get("cn", "")},
         "params": {"cl": "ARGUMENT_DAIL"}
     },
     "김정은 공개 활동": {
-        "key": os.getenv("UNION_API_KEY"),
+        "key": os.environ.get("UNION_API_KEY"),
         "url": "http://apis.data.go.kr/1250000/othbcact/getOthbcact",
         "parser": lambda item: {
             "title": item.get("nes_cn", "")[:100],  # 제목은 보도내용의 앞부분 100자로 설정
@@ -35,7 +32,7 @@ API_ENDPOINTS = {
         "params": {}
     },
     "통일부 보도자료": {
-        "key": os.getenv("UNION_API_KEY"),
+        "key": os.environ.get("UNION_API_KEY"),
         "url": "http://apis.data.go.kr/1250000/nesdta/getNesdta",
         "parser": lambda item: {
             "title": item.get("sj", "").strip(), 

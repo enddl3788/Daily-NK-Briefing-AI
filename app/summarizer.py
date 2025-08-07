@@ -1,16 +1,13 @@
 import os
 import logging
 from openai import OpenAI
-from dotenv import load_dotenv
 from typing import Tuple, Optional
 import datetime
-
-load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.environ.get("OPENAI_API_KEY")
 if not api_key:
     logger.error("❌ OPENAI_API_KEY가 설정되어 있지 않습니다.")
     raise EnvironmentError("OPENAI_API_KEY 환경변수가 없습니다.")
@@ -56,7 +53,7 @@ def summarize_text(text: str, model: str = "gpt-4") -> Tuple[str, str]:
         "1. 내용을 한 문장으로 요약하는 간결한 제목을 생성해주세요.\n"
         "2. 역피라미드형 구조(중요한 내용을 먼저)에 따라 기사 본문을 작성해주세요.\n"
         "3. 제목과 기사 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해서 응답해주세요.\n"
-        "4. [본문]은 html로 변환하고, html 기술을 활용하여 깔끔하게 작성해주세요.\n\n"
+        "4. 기사 본문은 html 기술을 활용하여 깔끔하게 작성해주세요.\n\n"
         "데이터:\n"
         + text.strip()
     )

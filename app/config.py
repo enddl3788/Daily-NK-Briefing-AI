@@ -2,19 +2,15 @@
 
 import os
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
 import logging
 
 # ✅ 로깅 설정
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# .env 파일 로드
-load_dotenv()
-logger.info("🔧 .env 파일 로딩 완료")
 
 # OpenAPI 인증키
-UNION_API_KEY = os.getenv("UNION_API_KEY")
+UNION_API_KEY = os.environ.get("UNION_API_KEY")
 if UNION_API_KEY:
     logger.info("🔐 UNION_API_KEY 로드 완료")
 else:
@@ -25,7 +21,7 @@ NK_TREND_API_URL = "https://apis.data.go.kr/1250000/trend"
 logger.info(f"🌐 NK_TREND_API_URL: {NK_TREND_API_URL}")
 
 # 블로그 업로드 플랫폼 설정
-BLOG_PLATFORM = os.getenv("BLOG_PLATFORM", "tistory")
+BLOG_PLATFORM = "tistory"
 logger.info(f"📝 BLOG_PLATFORM 설정: {BLOG_PLATFORM}")
 
 # 요약 문단 수 설정
