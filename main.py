@@ -1,111 +1,280 @@
+# main.py
 import logging
-from datetime import datetime
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Query
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
+from typing import Optional, List, Dict, Any
 
 from app.fetcher import fetch_all_north_korea_trends
-from app.summarizer import summarize_text
+from app.summarizer import summarize_and_generate_image
 from app.blog_uploader import upload_to_tistory
+# summarizer.py에서 LANGUAGES 딕셔너리 가져오기 (main.py에서 직접 정의하는 대신 모듈에서 가져오는 것이 더 좋습니다.)
+from app.summarizer import LANGUAGES as SUMMARIZER_LANGUAGES 
 
-# ✅ 로깅 설정
+# -----------------------------
+# 언어 및 카테고리 설정
+# -----------------------------
+# 언어 코드와 이름을 매핑하고 카테고리 ID를 추가합니다.
+# NOTE: 이 딕셔너리는 summarizer.py에 정의되어 있으므로, 
+# main.py에서는 import해서 사용하는 것이 좋습니다.
+# 여기서는 예시로 다시 정의합니다.
+SUMMARIZER_LANGUAGES = {
+    "ko": {
+        "name": "한국어",
+        "code": "ko",
+        "category_id": 1193166
+    },
+    "en": {
+        "name": "English",
+        "code": "en",
+        "category_id": 1193919
+    },
+    "zh": {
+        "name": "今日朝鲜 (Jīnrì cháoxiǎn)",
+        "code": "zh",
+        "category_id": 1193920
+    },
+    "ja": {
+        "name": "今日の北朝鮮 (Kyō no Kitachōsen)",
+        "code": "ja",
+        "category_id": 1193921
+    },
+    "ru": {
+        "name": "Сегодняшняя Северная Корея",
+        "code": "ru",
+        "category_id": 1193922
+    },
+    "de": {
+        "name": "Das heutige Nordkorea",
+        "code": "de",
+        "category_id": 1193923
+    },
+    "fr": {
+        "name": "Corée du Nord aujourd'hui",
+        "code": "fr",
+        "category_id": 1193924
+    },
+    "es": {
+        "name": "Corea del Norte hoy",
+        "code": "es",
+        "category_id": 1193925
+    },
+    "ar": {
+        "name": "كوريا الشمالية اليوم",
+        "code": "ar",
+        "category_id": 1193926
+    },
+    "pt": {
+        "name": "Português",
+        "code": "pt",
+        "category_id": 1193930
+    },
+    "zh-CN": {
+        "name": "简体中文",
+        "code": "zh-CN",
+        "category_id": 1193931
+    },
+    "zh-TW": {
+        "name": "繁體中文",
+        "code": "zh-TW",
+        "category_id": 1193932
+    },
+    "hi": {
+        "name": "आज का उत्तर कोरिया (Āj kā Uttara Koriyā)",
+        "code": "hi",
+        "category_id": 1193929
+    },
+    "vi": {
+        "name": "Triều Tiên hôm nay",
+        "code": "vi",
+        "category_id": 1193927
+    },
+    "id": {
+        "name": "Korea Utara Hari Ini",
+        "code": "id",
+        "category_id": 1193928
+    },
+}
+
+# 지원하는 언어 코드를 리스트로 추출
+SUPPORTED_LANGUAGES: List[str] = list(SUMMARIZER_LANGUAGES.keys())
+# UI에 표시될 언어 이름을 리스트로 추출
+LANGUAGE_NAMES: List[str] = [lang['name'] for lang in SUMMARIZER_LANGUAGES.values()]
+
+# -----------------------------
+# 로거 설정
+# -----------------------------
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
+# -----------------------------
+# FastAPI 애플리케이션 설정
+# -----------------------------
 app = FastAPI(
     title="북한 브리핑 AI",
     description="주간 북한 동향 요약 챗봇(자동 뉴스 작성)",
     version="1.0"
 )
 
-# ✅ Jinja2 템플릿 설정
-templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# 스케줄러 인스턴스 생성
+templates = Jinja2Templates(directory="static/templates")
+
 scheduler = AsyncIOScheduler()
 
-# 스케줄링할 함수 정의
-async def schedule_publish():
+# -----------------------------
+# 스케줄링 작업 함수
+# -----------------------------
+async def schedule_publish(language_code: str):
     """
-    오후 5시에 실행될 블로그 게시 작업
+    정기적으로 뉴스 데이터를 가져와 요약하고 블로그에 게시하는 함수
     """
-    logger.info("⏱️ 스케줄된 자동 게시 작업 시작...")
+    language_name = SUMMARIZER_LANGUAGES.get(language_code, {}).get("name", "기본")
+    logger.info(f"⏱️ 스케줄된 자동 게시 작업 시작... (언어: {language_name}, 코드: {language_code})")
     try:
-        # 1. 북한 동향 수집
         logger.info("📰 북한 동향 수집 시작")
         raw_data = await run_in_threadpool(fetch_all_north_korea_trends)
 
-        # 2. 요약 및 제목 생성
-        logger.info("✍️ 요약 및 제목 생성 시작")
-        title, summary_html = await run_in_threadpool(summarize_text, raw_data)
+        if not raw_data:
+            logger.warning("⚠️ 북한 동향 데이터가 없어 스케줄 작업을 건너뜁니다.")
+            return
 
-        # 3. 블로그 업로드
+        logger.info(f"✍️ 요약 및 이미지 생성 시작 (언어: {language_code})")
+        title, summary_html, image_url = await run_in_threadpool(
+            summarize_and_generate_image, raw_data, language=language_code
+        )
+        
+        if not title or not summary_html:
+            logger.error("❌ 요약 및 제목 생성 실패")
+            return
+
         logger.info(f"🚀 블로그 업로드 시도 - 제목: {title}")
-        post_url = await run_in_threadpool(upload_to_tistory, title, summary_html)
+        
+        # 이미지 URL이 있으면 HTML 본문에 추가
+        full_summary_html = summary_html
+        if image_url:
+            full_summary_html = f'<img src="{image_url}" alt="{title}" style="max-width:100%; height:auto;"><br>{summary_html}'
+        
+        # 수정: upload_to_tistory 함수 호출 시 language_code와 category_map 전달
+        category_map = {k: v['category_id'] for k, v in SUMMARIZER_LANGUAGES.items()}
+        post_url = await run_in_threadpool(
+            upload_to_tistory, title, f"{full_summary_html}", language_code, category_map
+        )
 
-        logger.info(f"✅ 게시 성공: {post_url}")
-        return {
-            "status": "published",
-            "title": title,
-            "url": post_url
-        }
-
+        if post_url:
+            logger.info(f"✅ 게시 성공: {post_url}")
+        else:
+            logger.error(f"❌ 게시 실패: post_url이 반환되지 않음")
+        
     except Exception as e:
         logger.error(f"❌ 게시 실패: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"게시 실패: {str(e)}")
+        pass
 
-# 애플리케이션 시작 시 스케줄러 시작
+# -----------------------------
+# 애플리케이션 라이프사이클 이벤트
+# -----------------------------
 @app.on_event("startup")
 async def startup_event():
-    logger.info("🚀 애플리케이션 시작 - 스케줄러 등록")
-    # 매일 오후 5시 0분에 schedule_publish 함수 실행
-    scheduler.add_job(schedule_publish, 'cron', hour=17, minute=00)
+    """애플리케이션 시작 시 스케줄러를 등록하고 실행합니다."""
+    logger.info("🚀 애플리케이션 시작 - 다국어 스케줄러 등록")
+    
+    # 시간대별 게시 스케줄 (KST 기준)
+    language_schedules = {
+        "es": 0,    # 스페인어 (중남미 저녁)
+        "pt": 2,    # 포르투갈어 (브라질 저녁)
+        "ru": 4,    # 러시아어 (러시아 저녁)
+        "ar": 6,    # 아랍어 (중동·북아프리카 밤)
+        "hi": 8,    # 힌디어 (인도 아침)
+        "fr": 10,   # 프랑스어 (프랑스 아침)
+        "de": 12,   # 독일어 (독일 정오)
+        "en": 14,   # 영어 (유럽 정오·미국 새벽)
+        "zh-CN": 16, # 중국어 간체 (중국 정오)
+        "ja": 18,   # 일본어 (일본 저녁)
+        "zh-TW": 20, # 중국어 번체 (대만·홍콩 저녁)
+        "ko": 22,   # 한국어 (한국 저녁 뉴스 타임)
+    }
+
+    for language_code, hour in language_schedules.items():
+        if language_code in SUMMARIZER_LANGUAGES:
+            # 주간 스케줄링을 위한 `day_of_week` 파라미터를 추가했습니다.
+            # 이 예시에서는 매주 일요일에 게시하도록 설정합니다. (0=월요일, 6=일요일)
+            scheduler.add_job(
+                schedule_publish,
+                'cron',
+                day_of_week='sun', 
+                hour=hour,
+                minute=0,
+                args=[language_code]
+            )
+            language_name = SUMMARIZER_LANGUAGES[language_code]['name']
+            logger.info(f"✅ 언어 '{language_name}' ({language_code}) 작업 등록: 매주 일요일 {hour}시 0분에 실행됩니다.")
+        else:
+            logger.warning(f"⚠️ 언어 코드 '{language_code}'는 지원되지 않아 스케줄링에서 제외됩니다.")
+
     scheduler.start()
 
-# 애플리케이션 종료 시 스케줄러 종료
 @app.on_event("shutdown")
 async def shutdown_event():
+    """애플리케이션 종료 시 스케줄러를 종료합니다."""
     logger.info("👋 애플리케이션 종료 - 스케줄러 종료")
     scheduler.shutdown()
 
+# -----------------------------
+# API 엔드포인트
+# -----------------------------
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):
-    """
-    메인 페이지 UI를 제공합니다.
-    """
+    """메인 페이지를 반환합니다."""
     logger.info("루트 엔드포인트 '/' 접근 - UI 페이지 반환")
-    return templates.TemplateResponse("index.html", {"request": request})
+    # jinja2 템플릿에 languages 딕셔너리를 직접 전달합니다.
+    return templates.TemplateResponse(
+        "index.html", 
+        {
+            "request": request, 
+            "languages": SUMMARIZER_LANGUAGES,
+            "language_names": LANGUAGE_NAMES,
+            "language_codes": SUPPORTED_LANGUAGES
+        }
+    )
 
 @app.get("/briefing/weekly")
-async def get_weekly_briefing():
+async def get_weekly_briefing(
+    language: Optional[str] = Query(
+        "ko",
+        description="기사를 생성할 언어 코드",
+        enum=SUPPORTED_LANGUAGES
+    )
+):
     """
-    주간 북한 동향을 수집하고 요약하여 반환합니다.
+    주간 북한 동향을 요약하여 반환합니다.
     """
-    logger.info("✅ /briefing/weekly 요청 수신")
-
+    logger.info(f"✅ /briefing/weekly 요청 수신 (언어 코드: {language})")
     try:
         logger.info("📰 북한 동향 수집 시작")
-        # 비동기 함수가 아니므로 run_in_threadpool을 사용
         raw_data = await run_in_threadpool(fetch_all_north_korea_trends)
 
         if not raw_data:
             logger.warning("⚠️ 북한 동향 데이터 없음")
             raise HTTPException(status_code=404, detail="북한 동향 데이터를 불러오지 못했습니다.")
 
-        logger.info("✍️ 요약 처리 시작")
-        title, summary_html = await run_in_threadpool(summarize_text, raw_data)
+        logger.info("✍️ 요약 및 이미지 생성 시작")
+        title, summary_html, image_url = await run_in_threadpool(
+            summarize_and_generate_image, raw_data, language=language
+        )
 
         logger.info("📦 요약 완료 및 응답 준비 완료")
         return {
             "status": "success",
             "title": title,
-            "summary": summary_html
+            "summary": summary_html,
+            "image_url": image_url,
+            "language_used": SUMMARIZER_LANGUAGES.get(language, {}).get("name", "기본")
         }
 
     except Exception as e:
@@ -113,32 +282,56 @@ async def get_weekly_briefing():
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/briefing/publish")
-async def publish_briefing():
+async def publish_briefing(
+    language: Optional[str] = Query(
+        "ko",
+        description="게시할 기사의 언어 코드",
+        enum=SUPPORTED_LANGUAGES
+    )
+):
     """
-    주간 북한 동향을 요약하고 블로그에 게시합니다.
+    주간 북한 동향을 요약하여 블로그에 게시합니다.
     """
-    logger.info("✅ /briefing/publish 요청 수신")
-
+    language_name = SUMMARIZER_LANGUAGES.get(language, {}).get("name", "기본")
+    logger.info(f"✅ /briefing/publish 요청 수신 (언어: {language_name}, 코드: {language})")
     try:
-        # 1. 북한 동향 수집
         logger.info("📰 북한 동향 수집 시작")
         raw_data = await run_in_threadpool(fetch_all_north_korea_trends)
 
-        # 2. 요약 및 제목 생성
-        logger.info("✍️ 요약 및 제목 생성 시작")
-        title, summary_html = await run_in_threadpool(summarize_text, raw_data)
+        if not raw_data:
+            logger.warning("⚠️ 북한 동향 데이터 없음")
+            raise HTTPException(status_code=404, detail="북한 동향 데이터를 불러오지 못했습니다.")
 
-        # 3. 블로그 업로드
+        logger.info("✍️ 요약 및 이미지 생성 시작")
+        title, summary_html, image_url = await run_in_threadpool(
+            summarize_and_generate_image, raw_data, language=language
+        )
+
         logger.info(f"🚀 블로그 업로드 시도 - 제목: {title}")
-        post_url = await run_in_threadpool(upload_to_tistory, title, summary_html)
+        
+        # 이미지 URL이 있으면 HTML 본문에 추가
+        full_summary_html = summary_html
+        if image_url:
+            full_summary_html = f'<img src="{image_url}" alt="{title}" style="max-width:100%; height:auto;"><br>{summary_html}'
+        
+        # 수정: upload_to_tistory 함수 호출 시 language_code와 category_map 전달
+        category_map = {k: v['category_id'] for k, v in SUMMARIZER_LANGUAGES.items()}
+        post_url = await run_in_threadpool(
+            upload_to_tistory, title, f"{full_summary_html}", language, category_map
+        )
+
+        if not post_url:
+            raise Exception("블로그 게시 실패")
 
         logger.info(f"✅ 게시 성공: {post_url}")
         return {
             "status": "published",
             "title": title,
-            "url": post_url
+            "url": post_url,
+            "image_url": image_url,
+            "language_used": language_name
         }
-
+    
     except Exception as e:
         logger.error(f"❌ 게시 실패: {str(e)}")
         raise HTTPException(status_code=500, detail=f"게시 실패: {str(e)}")

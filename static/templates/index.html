@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>북한 브리핑 AI</title>
+<style>
+/* CSS 스타일은 이전과 동일합니다. */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f6; /* Light background */
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 700px;
+    text-align: center;
+}
+
+h1 {
+    color: #2c3e50; /* Darker heading */
+    font-size: 2.2em;
+    margin-bottom: 20px;
+}
+
+p {
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+.schedule-info {
+    font-size: 1em;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+.language-selection {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.language-selection label {
+    font-weight: bold;
+    color: #333;
+}
+
+.language-selection select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.button-group {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.button {
+    padding: 12px 25px;
+    font-size: 1em;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+}
+
+.briefing-button {
+    background-color: #3498db;
+}
+
+.briefing-button:hover {
+    background-color: #2980b9;
+}
+
+.publish-button {
+    background-color: #2ecc71;
+}
+
+.publish-button:hover {
+    background-color: #27ae60;
+}
+
+#loading {
+    color: #888;
+    margin-top: 20px;
+}
+
+.result-container {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    text-align: left;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.result-container h2 {
+    color: #333;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+}
+
+.result-container img {
+    max-width: 100%;
+    height: auto; /* 이미지 비율 유지 */
+    margin-top: 15px;
+    border-radius: 5px;
+}
+
+.ai-image-note {
+    font-size: 0.85em;
+    color: #888;
+    margin-top: 5px;
+}
+
+.error {
+    color: #e74c3c;
+    font-weight: bold;
+    margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>북한 브리핑 AI</h1>
+    <p>주간 북한 동향을 자동으로 요약하고, 블로그에 게시합니다.</p>
+
+    <div class="schedule-info">
+        다음 자동 게시 시간: <span id="next-publish-time">계산 중...</span>
+    </div>
+
+    <div class="language-selection">
+        <label for="languageSelect">언어 선택:</label>
+        <select id="languageSelect">
+            {% for lang_code, lang_name in languages.items() %}
+                <option value="{{ lang_code }}">{{ lang_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="button-group">
+        <button class="button briefing-button" onclick="getBriefing()">브리핑 미리보기</button>
+        <button class="button publish-button" onclick="publishBriefing()">수동으로 블로그 게시</button>
+    </div>
+
+    <div id="loading" style="display: none;">처리 중... 잠시만 기다려주세요.</div>
+
+    <div id="result" class="result-container" style="display: none;">
+        <h2>결과</h2>
+        <div id="result-content"></div>
+    </div>
+</div>
+
+<div id="data-container" 
+     data-languages='{{ language_names | tojson }}'
+     data-languagecodes='{{ language_codes | tojson }}'>
+</div>
+
+<script src="/static/js/script.js"></script>
+</body>
+</html>

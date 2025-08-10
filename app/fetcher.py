@@ -109,7 +109,7 @@ def fetch_all_north_korea_trends(start_date=None, end_date=None, max_items=10) -
     """
     if not start_date or not end_date:
         today = datetime.today()
-        last_week = today - timedelta(days=3)
+        last_week = today - timedelta(days=5)
         start_date = last_week.strftime("%Y%m%d")
         end_date = today.strftime("%Y%m%d")
 
