@@ -2,18 +2,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // FastAPI 템플릿에서 전달받은 스케줄 정보를 사용하지 않고, 
     // main.py의 스케줄링 정보와 동일하게 하드코딩합니다.
     const languageSchedules = {
-        "ko": { name: "한국어", hour: 22 },
-        "en": { name: "English", hour: 14 },
-        "zh-CN": { name: "중국어 간체", hour: 16 },
-        "ja": { name: "일본어", hour: 18 },
-        "ru": { name: "러시아어", hour: 4 },
-        "de": { name: "독일어", hour: 12 },
-        "fr": { name: "프랑스어", hour: 10 },
-        "es": { name: "스페인어", hour: 0 },
-        "ar": { name: "아랍어", hour: 6 },
-        "pt": { name: "포르투갈어", hour: 2 },
-        "hi": { name: "힌디어", hour: 8 },
-        "zh-TW": { name: "중국어 번체", hour: 20 },
+        "ko": { name: "긍정적 관점", hour: 21 },
+        "en": { name: "부정적 관점", hour: 23 },
+        "zh": { name: "미래 예측", hour: 1 },
+        "ja": { name: "대외 관계", hour: 3 },
+        "ru": { name: "카드 뉴스 형식", hour: 5 },
+        "de": { name: "심층 분석", hour: 7 },
+        "fr": { name: "Q&A 형식", hour: 9 },
+        "es": { name: "인포그래픽 설명", hour: 11 },
+        "ar": { name: "초보자용", hour: 13 },
+        "hi": { name: "전문가용", hour: 15 },
+        "vi": { name: "흥미 위주", hour: 17 },
+        "id": { name: "결론 및 종합", hour: 19 },
     };
 
     const languageSelect = document.getElementById('languageSelect');

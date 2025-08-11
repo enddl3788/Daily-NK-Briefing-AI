@@ -23,77 +23,62 @@ from app.summarizer import LANGUAGES as SUMMARIZER_LANGUAGES
 # 여기서는 예시로 다시 정의합니다.
 SUMMARIZER_LANGUAGES = {
     "ko": {
-        "name": "한국어",
+        "name": "긍정적 관점",
         "code": "ko",
         "category_id": 1193166
     },
     "en": {
-        "name": "English",
+        "name": "부정적 관점",
         "code": "en",
         "category_id": 1193919
     },
     "zh": {
-        "name": "今日朝鲜 (Jīnrì cháoxiǎn)",
+        "name": "미래 예측",
         "code": "zh",
         "category_id": 1193920
     },
     "ja": {
-        "name": "今日の北朝鮮 (Kyō no Kitachōsen)",
+        "name": "대외 관계",
         "code": "ja",
         "category_id": 1193921
     },
     "ru": {
-        "name": "Сегодняшняя Северная Корея",
+        "name": "카드 뉴스 형식",
         "code": "ru",
         "category_id": 1193922
     },
     "de": {
-        "name": "Das heutige Nordkorea",
+        "name": "심층 분석",
         "code": "de",
         "category_id": 1193923
     },
     "fr": {
-        "name": "Corée du Nord aujourd'hui",
+        "name": "Q&A 형식",
         "code": "fr",
         "category_id": 1193924
     },
     "es": {
-        "name": "Corea del Norte hoy",
+        "name": "인포그래픽 설명",
         "code": "es",
         "category_id": 1193925
     },
     "ar": {
-        "name": "كوريا الشمالية اليوم",
+        "name": "초보자용",
         "code": "ar",
         "category_id": 1193926
     },
-    "pt": {
-        "name": "Português",
-        "code": "pt",
-        "category_id": 1193930
-    },
-    "zh-CN": {
-        "name": "简体中文",
-        "code": "zh-CN",
-        "category_id": 1193931
-    },
-    "zh-TW": {
-        "name": "繁體中文",
-        "code": "zh-TW",
-        "category_id": 1193932
-    },
     "hi": {
-        "name": "आज का उत्तर कोरिया (Āj kā Uttara Koriyā)",
+        "name": "전문가용",
         "code": "hi",
         "category_id": 1193929
     },
     "vi": {
-        "name": "Triều Tiên hôm nay",
+        "name": "흥미 위주",
         "code": "vi",
         "category_id": 1193927
     },
     "id": {
-        "name": "Korea Utara Hari Ini",
+        "name": "결론 및 종합",
         "code": "id",
         "category_id": 1193928
     },
@@ -186,18 +171,18 @@ async def startup_event():
     
     # 시간대별 게시 스케줄 (KST 기준)
     language_schedules = {
-        "es": 0,    # 스페인어 (중남미 저녁)
-        "pt": 2,    # 포르투갈어 (브라질 저녁)
-        "ru": 4,    # 러시아어 (러시아 저녁)
-        "ar": 6,    # 아랍어 (중동·북아프리카 밤)
-        "hi": 8,    # 힌디어 (인도 아침)
-        "fr": 10,   # 프랑스어 (프랑스 아침)
-        "de": 12,   # 독일어 (독일 정오)
-        "en": 14,   # 영어 (유럽 정오·미국 새벽)
-        "zh-CN": 16, # 중국어 간체 (중국 정오)
-        "ja": 18,   # 일본어 (일본 저녁)
-        "zh-TW": 20, # 중국어 번체 (대만·홍콩 저녁)
-        "ko": 22,   # 한국어 (한국 저녁 뉴스 타임)
+        "ko": 21,    
+        "en": 23,    
+        "zh": 1,    
+        "ja": 3,    
+        "ru": 5,    
+        "de": 7,   
+        "fr": 9,   
+        "es": 11,   
+        "ar": 13,
+        "hi": 15,   
+        "vi": 17,
+        "id": 19,   
     }
 
     for language_code, hour in language_schedules.items():

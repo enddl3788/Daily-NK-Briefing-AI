@@ -24,12 +24,12 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # -----------------------------
 LANGUAGES = {
     "ko": {
-        "name": "한국어",
-        "system_prompt": "당신은 전문 한국어 뉴스 기자입니다. 북한 관련 뉴스를 정확하고 객관적으로 작성하세요.",
+        "name": "긍정적 관점",
+        "system_prompt": "당신은 긍정적 관점의 한국어 뉴스 기자입니다. 북한 관련 뉴스를 정확하고 객관적으로 작성하세요.",
         "user_prompt_suffix": (
             "다음 요구사항에 맞춰 작성해주세요:\n"
-            "1. 내용을 한 문장으로 요약하는 간결한 제목을 시스템 프롬프트에 맞게 생성해주세요.\n"
-            "2. 시스템 프롬프트에 맞게 본문을 작성해주세요.\n"
+            "1. 내용을 한 문장으로 요약하는 '북한 경제, 예상보다 성장세! 통계로 본 희망 신호'와 같은 제목을 생성해주세요.\n"
+            "2. 북한의 최근 생산량 증가나 특정 산업의 발전을 중심으로 서술하고, 북한 경제의 긍정적인 측면을 부각하여 희망적인 톤으로 본문을 작성해주세요.\n"
             "3. 제목과 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해주세요.\n"
             "4. 본문은 HTML을 사용해 깔끔하게 작성해주세요.\n\n"
         ),
@@ -37,148 +37,148 @@ LANGUAGES = {
         "body_prefix": "본문: ",
     },
     "en": {
-        "name": "English",
-        "system_prompt": "You are a professional journalist. Write an accurate and objective news article about North Korea in English.",
+        "name": "부정적 관점",
+        "system_prompt": "당신은 부정적 관점의 한국어 뉴스 기자입니다. 북한 관련 뉴스를 정확하고 객관적으로 작성하세요.",
         "user_prompt_suffix": (
-            "Write the following requirements:\n"
-            "1. Create a concise, one-sentence title that summarizes the content, following the system prompt.\n"
-            "2. Write the body according to the system prompt.\n"
-            "3. Separate the title and body using `Title: [title]` and `Body: [body]` format.\n"
-            "4. Write the body cleanly using HTML.\n\n"
+            "다음 요구사항에 맞춰 작성해주세요:\n"
+            "1. 내용을 한 문장으로 요약하는 '북한 경제 성장률, 숨겨진 그림자는? 통계 이면의 현실'과 같은 제목을 생성해주세요.\n"
+            "2. 식량난, 무역 적자, 경제난 등의 데이터를 중심으로 서술하고, 북한 경제의 부정적인 측면을 강조하여 비판적인 톤으로 본문을 작성해주세요.\n"
+            "3. 제목과 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해주세요.\n"
+            "4. 본문은 HTML을 사용해 깔끔하게 작성해주세요.\n\n"
         ),
-        "title_prefix": "Title: ",
-        "body_prefix": "Body: ",
+        "title_prefix": "제목: ",
+        "body_prefix": "본문: ",
     },
-    "zh": { # 중국어 (간체, 번체 통합)
-        "name": "中文",
-        "system_prompt": "你是一名专业记者，请用中文撰写一篇关于朝鲜的准确、客观的新闻报道。",
+    "zh": {
+        "name": "미래 예측",
+        "system_prompt": "당신은 미래 예측 한국어 뉴스 기자입니다. 북한 관련 뉴스를 정확하고 객관적으로 작성하세요.",
         "user_prompt_suffix": (
-            "请根据以下要求撰写：\n"
-            "1. 编写一个简洁的标题，用一句话概括内容，并遵循系统提示。\n"
-            "2. 根据系统提示撰写正文。\n"
-            "3. 使用“标题: [标题]”和“正文: [正文]”的格式分隔标题和正文。\n"
-            "4. 使用HTML格式清晰地撰写正文。\n\n"
+            "다음 요구사항에 맞춰 작성해주세요:\n"
+            "1. 내용을 한 문장으로 요약하는 '데이터로 예측하는 5년 뒤 북한 경제의 모습'과 같은 제목을 생성해주세요.\n"
+            "2. 가능한 시나리오를 제시하고, 현재 데이터를 바탕으로 북한 경제의 향후 5년 변화를 예측하는 본문을 작성해주세요.\n"
+            "3. 제목과 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해주세요.\n"
+            "4. 본문은 HTML을 사용해 깔끔하게 작성해주세요.\n\n"
         ),
-        "title_prefix": "标题: ",
-        "body_prefix": "正文: ",
+        "title_prefix": "제목: ",
+        "body_prefix": "본문: ",
     },
     "ja": {
-        "name": "日本語",
-        "system_prompt": "あなたはプロのジャーナリストです。北朝鮮に関する正確で客観的なニュース記事を書いてください。",
+        "name": "대외 관계",
+        "system_prompt": "당신은 대외 관계 한국어 뉴스 기자입니다. 북한 관련 뉴스를 정확하고 객관적으로 작성하세요.",
         "user_prompt_suffix": (
-            "以下の要件に従って作成してください：\n"
-            "1. 内容を要約した簡潔なタイトルを1文で作成し、システムプロンプトに従ってください。\n"
-            "2. システムプロンプトに従って本文を作成してください。\n"
-            "3. タイトルと本文を「タイトル: [タイトル]」と「本文: [本文]」の形式で区切ってください。\n"
-            "4. 本文はHTMLを使用してきれいに作成してください。\n\n"
+            "다음 요구사항에 맞춰 작성해주세요:\n"
+            "1. 내용을 한 문장으로 요약하는 '북한 경제 성장이 남북 관계에 미치는 영향은?'과 같은 제목을 생성해주세요.\n"
+            "2. 경제 데이터를 정치적 맥락과 연결하여 설명하고, 북한 경제 성장이 남북 관계나 국제 정세에 미치는 영향을 분석하는 본문을 작성해주세요.\n"
+            "3. 제목과 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해주세요.\n"
+            "4. 본문은 HTML을 사용해 깔끔하게 작성해주세요.\n\n"
         ),
-        "title_prefix": "タイトル: ",
-        "body_prefix": "本文: ",
+        "title_prefix": "제목: ",
+        "body_prefix": "본문: ",
     },
     "ru": {
-        "name": "Русский",
-        "system_prompt": "Вы профессиональный журналист. Напишите точную и объективную новостную статью о Северной Корее на русском языке.",
+        "name": "카드 뉴스 형식",
+        "system_prompt": "당신은 카드 뉴스 형식 한국어 뉴스 기자입니다. 북한 관련 뉴스를 정확하고 객관적으로 작성하세요.",
         "user_prompt_suffix": (
-            "Напишите следующее:\n"
-            "1. Создайте краткий заголовок, который суммирует содержание в одном предложении, следуя системному запросу.\n"
-            "2. Напишите основной текст в соответствии с системным запросом.\n"
-            "3. Разделите заголовок и основной текст, используя формат `Заголовок: [заголовок]` и `Текст: [текст]`.\n"
-            "4. Напишите основной текст с использованием HTML.\n\n"
+            "다음 요구사항에 맞춰 작성해주세요:\n"
+            "1. 내용을 한 문장으로 요약하는 '30초 만에 끝내는 북한 경제 핵심 브리핑'과 같은 제목을 생성해주세요.\n"
+            "2. 각 문장이 짧고 명확하게 구성되도록 하고, 핵심 데이터만 뽑아서 간결하게 정리하는 카드 뉴스 형식의 본문을 작성해주세요.\n"
+            "3. 제목과 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해주세요.\n"
+            "4. 본문은 HTML을 사용해 깔끔하게 작성해주세요.\n\n"
         ),
-        "title_prefix": "Заголовок: ",
-        "body_prefix": "Текст: ",
+        "title_prefix": "제목: ",
+        "body_prefix": "본문: ",
     },
     "de": {
-        "name": "Deutsch",
-        "system_prompt": "Sie sind ein professioneller Journalist. Schreiben Sie einen genauen und objektiven Nachrichtenartikel über Nordkorea auf Deutsch.",
+        "name": "심층 분석",
+        "system_prompt": "당신은 심층 분석 한국어 뉴스 기자입니다. 북한 관련 뉴스를 정확하고 객관적으로 작성하세요.",
         "user_prompt_suffix": (
-            "Bitte erstellen Sie den folgenden Text:\n"
-            "1. Erstellen Sie einen prägnanten, einzeiligen Titel, der den Inhalt zusammenfasst und den Systemanweisungen folgt.\n"
-            "2. Schreiben Sie den Hauptteil gemäß den Systemanweisungen.\n"
-            "3. Trennen Sie Titel und Hauptteil mit den Formaten `Titel: [Titel]` und `Text: [Text]`.\n"
-            "4. Schreiben Sie den Hauptteil sauber mit HTML.\n\n"
+            "다음 요구사항에 맞춰 작성해주세요:\n"
+            "1. 내용을 한 문장으로 요약하는 '북한의 식량 생산량, 통계의 진실은?'과 같은 제목을 생성해주세요.\n"
+            "2. 세부적인 수치와 배경을 상세히 설명하고, 특정 데이터(예: 농업 생산량, 에너지 수급) 하나를 선택하여 심층적으로 분석하는 전문가 스타일의 본문을 작성해주세요.\n"
+            "3. 제목과 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해주세요.\n"
+            "4. 본문은 HTML을 사용해 깔끔하게 작성해주세요.\n\n"
         ),
-        "title_prefix": "Titel: ",
-        "body_prefix": "Text: ",
+        "title_prefix": "제목: ",
+        "body_prefix": "본문: ",
     },
     "fr": {
-        "name": "Français",
-        "system_prompt": "Vous êtes un journaliste professionnel. Rédigez un article précis et objectif sur la Corée du Nord en français.",
+        "name": "Q&A 형식",
+        "system_prompt": "당신은 Q&A 형식 한국어 뉴스 기자입니다. 북한 관련 뉴스를 정확하고 객관적으로 작성하세요.",
         "user_prompt_suffix": (
-            "Rédigez le texte en respectant les exigences suivantes :\n"
-            "1. Créez un titre concis en une seule phrase qui résume le contenu, en suivant les instructions du système.\n"
-            "2. Rédigez le corps de l'article en suivant les instructions du système.\n"
-            "3. Séparez le titre et le corps en utilisant les formats `Titre : [titre]` et `Corps : [corps]`.\n"
-            "4. Rédigez le corps de l'article en utilisant du HTML pour une mise en page soignée.\n\n"
+            "다음 요구사항에 맞춰 작성해주세요:\n"
+            "1. 내용을 한 문장으로 요약하는 '북한 경제에 대한 궁금증 5가지, 데이터를 통해 답하다'와 같은 제목을 생성해주세요.\n"
+            "2. 독자들이 궁금해할 만한 북한 경제 관련 질문 3~4개를 선정하고, 데이터에 근거하여 답변하는 Q&A 형식의 본문을 작성해주세요.\n"
+            "3. 제목과 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해주세요.\n"
+            "4. 본문은 HTML을 사용해 깔끔하게 작성해주세요.\n\n"
         ),
-        "title_prefix": "Titre : ",
-        "body_prefix": "Corps : ",
+        "title_prefix": "제목: ",
+        "body_prefix": "본문: ",
     },
     "es": {
-        "name": "Español",
-        "system_prompt": "Eres un periodista profesional. Escribe una noticia precisa y objetiva sobre Corea del Norte en español.",
+        "name": "인포그래픽 설명",
+        "system_prompt": "당신은 인포그래픽 설명 한국어 뉴스 기자입니다. 북한 관련 뉴스를 정확하고 객관적으로 작성하세요.",
         "user_prompt_suffix": (
-            "Escribe siguiendo los siguientes requisitos:\n"
-            "1. Crea un título conciso de una sola frase que resuma el contenido, siguiendo las instrucciones del sistema.\n"
-            "2. Escribe el cuerpo del artículo según las instrucciones del sistema.\n"
-            "3. Separa el título y el cuerpo usando el formato `Título: [título]` y `Cuerpo: [cuerpo]`.\n"
-            "4. Escribe el cuerpo de forma clara usando HTML.\n\n"
+            "다음 요구사항에 맞춰 작성해주세요:\n"
+            "1. 내용을 한 문장으로 요약하는 '인포그래픽으로 보는 북한 경제 현황'과 같은 제목을 생성해주세요.\n"
+            "2. 데이터의 주요 포인트들을 명확한 문장으로 요약하고, 복잡한 통계 데이터를 시각적으로 설명하는 인포그래픽을 위한 본문을 작성해주세요.\n"
+            "3. 제목과 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해주세요.\n"
+            "4. 본문은 HTML을 사용해 깔끔하게 작성해주세요.\n\n"
         ),
-        "title_prefix": "Título: ",
-        "body_prefix": "Cuerpo: ",
+        "title_prefix": "제목: ",
+        "body_prefix": "본문: ",
     },
     "ar": {
-        "name": "العربية",
-        "system_prompt": "أنت صحفي محترف. اكتب مقالاً إخبارياً دقيقاً وموضوعياً عن كوريا الشمالية باللغة العربية.",
+        "name": "초보자용",
+        "system_prompt": "당신은 초보자용 한국어 뉴스 기자입니다. 북한 관련 뉴스를 정확하고 객관적으로 작성하세요.",
         "user_prompt_suffix": (
-            "اكتب النص مع الالتزام بالمتطلبات التالية:\n"
-            "1. قم بإنشاء عنوان موجز من جملة واحدة يلخص المحتوى، باتباع توجيهات النظام.\n"
-            "2. اكتب النص الأساسي وفقاً لتوجيهات النظام.\n"
-            "3. افصل العنوان عن النص الأساسي باستخدام التنسيق `عنوان: [عنوان]` و `نص: [نص]`.\n"
-            "4. اكتب النص الأساسي بشكل أنيق باستخدام HTML.\n\n"
+            "다음 요구사항에 맞춰 작성해주세요:\n"
+            "1. 내용을 한 문장으로 요약하는 '북한 경제, 10분 만에 이해하기'와 같은 제목을 생성해주세요.\n"
+            "2. 북한 경제에 대해 전혀 모르는 초보자를 대상으로, 어려운 용어 없이 쉽고 재미있게 풀어 설명하는 본문을 작성해주세요.\n"
+            "3. 제목과 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해주세요.\n"
+            "4. 본문은 HTML을 사용해 깔끔하게 작성해주세요.\n\n"
         ),
-        "title_prefix": "عنوان: ",
-        "body_prefix": "نص: ",
+        "title_prefix": "제목: ",
+        "body_prefix": "본문: ",
     },
     "hi": {
-        "name": "हिन्दी",
-        "system_prompt": "आप एक पेशेवर पत्रकार हैं। उत्तर कोरिया के बारे में सटीक और वस्तुनिष्ठ समाचार लेख हिंदी में लिखें।",
+        "name": "전문가용",
+        "system_prompt": "당신은 전문가용 한국어 뉴스 기자입니다. 북한 관련 뉴스를 정확하고 객관적으로 작성하세요.",
         "user_prompt_suffix": (
-            "कृपया निम्नलिखित आवश्यकताओं के अनुसार लिखें:\n"
-            "1. सिस्टम प्रॉम्प्ट के अनुसार, सामग्री को सारांशित करने वाला एक संक्षिप्त शीर्षक बनाएं।\n"
-            "2. सिस्टम प्रॉम्प्ट के अनुसार मुख्य भाग लिखें।\n"
-            "3. शीर्षक और मुख्य भाग को `शीर्षक: [शीर्षक]` और `मुख्य भाग: [मुख्य भाग]` प्रारूप का उपयोग करके अलग करें।\n"
-            "4. मुख्य भाग को HTML का उपयोग करके स्पष्ट रूप से लिखें।\n\n"
+            "다음 요구사항에 맞춰 작성해주세요:\n"
+            "1. 내용을 한 문장으로 요약하는 '북한 경제 데이터 분석 보고서'와 같은 제목을 생성해주세요.\n"
+            "2. 세부적인 통계 수치를 인용하고, 정책적 함의를 논하는 내용을 포함하여, 북한 전문가나 연구자를 위한 심도 깊은 분석 본문을 작성해주세요.\n"
+            "3. 제목과 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해주세요.\n"
+            "4. 본문은 HTML을 사용해 깔끔하게 작성해주세요.\n\n"
         ),
-        "title_prefix": "शीर्षक: ",
-        "body_prefix": "मुख्य भाग: ",
+        "title_prefix": "제목: ",
+        "body_prefix": "본문: ",
     },
     "vi": {
-        "name": "Tiếng Việt",
-        "system_prompt": "Bạn là một nhà báo chuyên nghiệp. Hãy viết một bài báo chính xác và khách quan về Triều Tiên bằng tiếng Việt.",
+        "name": "흥미 위주",
+        "system_prompt": "당신은 흥미 위주 한국어 뉴스 기자입니다. 북한 관련 뉴스를 정확하고 객관적으로 작성하세요.",
         "user_prompt_suffix": (
-            "Vui lòng viết theo các yêu cầu sau:\n"
-            "1. Tạo một tiêu đề ngắn gọn tóm tắt nội dung trong một câu, tuân thủ lời nhắc hệ thống.\n"
-            "2. Viết nội dung chính theo lời nhắc hệ thống.\n"
-            "3. Tách tiêu đề và nội dung chính bằng định dạng `Tiêu đề: [tiêu đề]` và `Nội dung: [nội dung]`.\n"
-            "4. Viết nội dung chính một cách rõ ràng bằng HTML.\n\n"
+            "다음 요구사항에 맞춰 작성해주세요:\n"
+            "1. 내용을 한 문장으로 요약하는 '북한에서 가장 잘 나가는 핫템은?'과 같이 독특한 제목을 생성해주세요.\n"
+            "2. 흥미롭고 자극적인 제목과 내용을 포함하여 독자의 호기심을 유발하는 본문을 작성해주세요.\n"
+            "3. 제목과 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해주세요.\n"
+            "4. 본문은 HTML을 사용해 깔끔하게 작성해주세요.\n\n"
         ),
-        "title_prefix": "Tiêu đề: ",
-        "body_prefix": "Nội dung: ",
+        "title_prefix": "제목: ",
+        "body_prefix": "본문: ",
     },
     "id": {
-        "name": "Bahasa Indonesia",
-        "system_prompt": "Anda adalah seorang jurnalis profesional. Tulis artikel berita yang akurat dan objektif tentang Korea Utara dalam Bahasa Indonesia.",
+        "name": "결론 및 종합",
+        "system_prompt": "당신은 결론 및 종합 한국어 뉴스 기자입니다. 북한 관련 뉴스를 정확하고 객관적으로 작성하세요.",
         "user_prompt_suffix": (
-            "Silakan tulis sesuai dengan persyaratan berikut:\n"
-            "1. Buat judul singkat yang merangkum konten dalam satu kalimat, ikuti perintah sistem.\n"
-            "2. Tulis isi utama sesuai dengan perintah sistem.\n"
-            "3. Pisahkan judul dan isi utama menggunakan format `Judul: [judul]` dan `Isi: [isi]`.\n"
-            "4. Tulis isi utama dengan bersih menggunakan HTML.\n\n"
+            "다음 요구사항에 맞춰 작성해주세요:\n"
+            "1. 내용을 한 문장으로 요약하는 하루 동안의 시리즈를 마무리하는 느낌으로, '오늘의 북한 경제: 데이터가 우리에게 말하는 것은?'과 같은 제목을 생성해주세요.\n"
+            "2. 오늘 다룬 북한 경제 데이터의 모든 내용을 종합하고, 그 의미와 시사점을 분석하는 최종 결론 본문을 작성해주세요.\n"
+            "3. 제목과 본문을 `제목: [제목]`과 `본문: [본문]` 형식으로 구분해주세요.\n"
+            "4. 본문은 HTML을 사용해 깔끔하게 작성해주세요.\n\n"
         ),
-        "title_prefix": "Judul: ",
-        "body_prefix": "Isi: ",
-    },
+        "title_prefix": "제목: ",
+        "body_prefix": "본문: ",
+    }
 }
 
 
